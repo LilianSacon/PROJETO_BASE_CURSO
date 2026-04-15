@@ -25,6 +25,7 @@ function App() {
   const [items, setItems] = useState<Item[]>([]);
   const [nome, setNome] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [checks, setChecks] = useState<HealthChecks>({
     frontend: 'pending',
     backend: 'pending',
@@ -67,7 +68,8 @@ function App() {
       const data = await getItems();
       setItems(data);
     } catch (err) {
-      console.error('Erro ao buscar itens:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(`Erro ao buscar itens: ${msg}`);
     } finally {
       setLoading(false);
     }
@@ -76,12 +78,14 @@ function App() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!nome.trim()) return;
+    setError(null);
     try {
       await createItem(nome);
       setNome('');
       await fetchItems();
     } catch (err) {
-      console.error('Erro ao salvar item:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(`Erro ao salvar item: ${msg}`);
     }
   }
 
@@ -112,6 +116,21 @@ function App() {
           </li>
         </ul>
       </div>
+
+      {/* Mensagem de erro */}
+      {error && (
+        <div style={{
+          background: '#fee2e2',
+          border: '1px solid #fca5a5',
+          borderRadius: 8,
+          padding: '0.75rem 1rem',
+          marginBottom: '1rem',
+          color: '#991b1b',
+          fontSize: '0.9rem',
+        }}>
+          {error}
+        </div>
+      )}
 
       {/* Conteúdo principal — só mostra se tudo ok */}
       {allOk && (
