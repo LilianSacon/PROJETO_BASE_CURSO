@@ -63,17 +63,26 @@ function App() {
 
   async function fetchItems() {
     setLoading(true);
-    const data = await getItems();
-    setItems(data);
-    setLoading(false);
+    try {
+      const data = await getItems();
+      setItems(data);
+    } catch (err) {
+      console.error('Erro ao buscar itens:', err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!nome.trim()) return;
-    await createItem(nome);
-    setNome('');
-    await fetchItems();
+    try {
+      await createItem(nome);
+      setNome('');
+      await fetchItems();
+    } catch (err) {
+      console.error('Erro ao salvar item:', err);
+    }
   }
 
   const allOk = checks.frontend === 'ok' && checks.backend === 'ok' && checks.database === 'ok';
